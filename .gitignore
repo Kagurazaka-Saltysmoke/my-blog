@@ -1,0 +1,23 @@
+# .env — secrets, never commit
+.env
+.env.local
+.env.*.local
+
+# build
+dist/
+.tina-build/
+
+# deps
+node_modules/
+
+# IDE
+.vscode/
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# wrangler
+.wrangler/
+.dev.vars

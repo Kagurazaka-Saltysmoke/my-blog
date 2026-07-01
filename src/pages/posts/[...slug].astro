@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TinaMarkdown from '@tinacms/astro/TinaMarkdown.astro';
+import { client } from '../../tina-client';
+
+const { slug } = Astro.params;
+const relativePath = `${slug}.md`;
+
+const { data } = await client.queries.post({ relativePath });
+
+if (!data?.post) {
+  return Astro.redirect('/404');
+}
+
+const post = data.post;
+const date = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric',
+    })
+  : null;
+---
+
+<BaseLayout title={post.title} description={post.description} image={post.image ?? undefined}>
+  <article>
+    <header class="post-header">
+      <h1>{post.title}</h1>
+      <div class="meta">
+        {date && <time datetime={post.publishedAt!}>{date}</time>}
+        {post.updatedAt && post.updatedAt !== post.publishedAt && (
+          <span> · Updated {new Date(post.updatedAt).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric',
+          })}</span>
+        )}
+      </div>
+      {post.tags && post.tags.length > 0 && (
+        <div class="tags">
+          {post.tags.filter(Boolean).map((tag) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    {post.image && <img class="cover-image" src={post.image} alt={post.title} />}
+
+    <div class="content">
+      {post.body ? (
+        <TinaMarkdown content={post.body} />
+      ) : (
+        <p style="color: var(--muted);">No content yet.</p>
+      )}
+    </div>
+
+    <a href="/" class="back-link">← Back to all posts</a>
+  </article>
+</BaseLayout>

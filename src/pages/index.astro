@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { client } from '../tina-client';
+import type { PostConnectionQuery } from '../../tina/__generated__/types';
+
+const { data } = await client.queries.postConnection({
+  sort: 'publishedAt',
+  filter: { draft: { eq: false } },
+});
+
+const posts = data.postConnection.edges
+  ?.map((edge) => edge?.node)
+  .filter(Boolean) ?? [];
+---
+
+<BaseLayout title="Blog" description="Saltysmoke's blog">
+  <h1>Blog</h1>
+  <p style="color: var(--muted); margin-bottom: 2rem;">
+    Thoughts on technology, design, and the art of tinkering.
+  </p>
+
+  {
+    posts.length === 0 ? (
+      <p style="color: var(--muted);">No posts yet. <a href="/admin">Write the first one →</a></p>
+    ) : (
+      posts.map((post) => {
+        if (!post) return null;
+        const slug = post._sys.relativePath.replace(/\.md$/, '');
+        const date = post.publishedAt
+          ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'long', day: 'numeric',
+            })
+          : null;
+        return (
+          <article class="post-card">
+            <h2><a href={`/posts/${slug}`}>{post.title}</a></h2>
+            <div class="meta">
+              {date && <time datetime={post.publishedAt!}>{date}</time>}
+            </div>
+            <p>{post.description}</p>
+            {post.tags && post.tags.length > 0 && (
+              <div class="tags">
+                {post.tags.filter(Boolean).map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            )}
+          </article>
+        );
+      })
+    )
+  }
+</BaseLayout>
