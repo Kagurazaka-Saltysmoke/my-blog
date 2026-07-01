@@ -15,7 +15,7 @@ const isLocal =
 
 const url = isLocal
   ? 'http://localhost:4001/graphql'
-  : `https://content.tinajs.io/content/${clientId}/github/${branch}`;
+  : `https://content.tinajs.io/2.4/content/${clientId}/github/${branch}`;
 
 const token = isLocal ? 'placeholder' : process.env.TINA_TOKEN || '';
 
