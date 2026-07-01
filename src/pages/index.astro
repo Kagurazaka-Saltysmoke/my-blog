@@ -2,17 +2,9 @@
 export const prerender = false;
 
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { client } from '../tina-client';
-import type { PostConnectionQuery } from '../../tina/__generated__/types';
+import { getPosts } from '../tina-api';
 
-const { data } = await client.queries.postConnection({
-  sort: 'publishedAt',
-  filter: { draft: { eq: false } },
-});
-
-const posts = data.postConnection.edges
-  ?.map((edge) => edge?.node)
-  .filter(Boolean) ?? [];
+const posts = await getPosts();
 ---
 
 <BaseLayout title="Blog" description="Saltysmoke's blog">
